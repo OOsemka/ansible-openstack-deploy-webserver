@@ -45,7 +45,7 @@ Example -
 webserver ansible_ssh_host=X.X.X.X ansible_ssh_user=cloud-user
 ```
 
-### launch-and-install.yaml
+## launch-and-install.yaml
 
 The last playbook launch-and-install/launch-and-install.yaml merges
 the other 2 together with addition of few changes. First it takes advantage
