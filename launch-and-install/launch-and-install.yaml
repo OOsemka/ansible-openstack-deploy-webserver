@@ -1,0 +1,65 @@
+- name: Deploy on OpenStack
+  hosts: localhost
+  gather_facts: false
+  tasks:
+  - name: Deploy a RHEL instance
+    nova_compute:
+      state: present
+      login_username: <insert_user>
+      login_password: <insert_password>
+      login_tenant_name: <insert_tenant>
+      auth_url: http://X.X.X.X:5000/v2.0
+      name: webserver
+      image_name: rhel7-raw
+      key_name: undercloud-key
+      wait_for: 200
+      flavor_id: 2
+      floating_ip_pools: 
+        - 419ecfd4-4ce0-405d-afd4-bbcd5fe26616
+      nics:
+        - net-id: 2387d7f1-bfdf-446c-9387-7754d2076185
+      meta:
+        hostname: webserver.homelab
+    register: nova
+
+  - name: Executing the same deployment again to workaround the registration issue
+    nova_compute:
+      state: present
+      login_username: <insert_user>
+      login_password: <insert_password>
+      login_tenant_name: <insert_tenant>
+      auth_url: http://X.X.X.X:5000/v2.0
+      name: webserver
+      image_name: rhel7-raw
+      key_name: undercloud-key
+      wait_for: 200
+      flavor_id: 2
+      floating_ip_pools:
+        - 419ecfd4-4ce0-405d-afd4-bbcd5fe26616
+      nics:
+        - net-id: 2387d7f1-bfdf-446c-9387-7754d2076185
+      meta:
+        hostname: webserver.homelab
+    register: nova
+
+
+
+  - name: Add RHEL Instance to Inventory
+    add_host: name=webserver2 groups=webservers
+              ansible_ssh_host={{ nova.public_ip[0] }}
+              ansible_ssh_user=cloud-user
+
+  - name: wait for RHEL to initialize so we can safelly ssh to it
+    pause: seconds=30
+
+- hosts: webserver2
+  remote_user: cloud-user
+  sudo: yes
+  tasks:
+    - name: upload yum repo file to image
+      copy: src=local.repo dest=/etc/yum.repos.d/
+    - name: ensure apache is at the latest version
+      yum: name=httpd state=latest
+    - name: make sure apache is running
+      service: name=httpd state=running
+

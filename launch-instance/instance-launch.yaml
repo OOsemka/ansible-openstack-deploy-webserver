@@ -1,0 +1,22 @@
+- name: Deploy on OpenStack
+  hosts: localhost
+  gather_facts: false
+  tasks:
+  - name: Deploy an instance
+    nova_compute:
+      state: present
+      login_username: <insert_username>
+      login_password: <insert_password>
+      login_tenant_name: <insert_tenant>
+      auth_url: http://X.X.X.X:5000/v2.0
+      name: webserver
+      image_name: rhel7-raw
+      key_name: undercloud-key
+      wait_for: 200
+      flavor_id: 2
+      floating_ip_pools: 
+        - 419ecfd4-4ce0-405d-afd4-bbcd5fe26616
+      nics:
+        - net-id: 2387d7f1-bfdf-446c-9387-7754d2076185
+      meta:
+        hostname: webserver.homelab
