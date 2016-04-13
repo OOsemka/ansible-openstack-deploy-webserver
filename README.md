@@ -1,1 +1,1 @@
-# Spawning RHEL instance and deploying webserver with Ansible
+# Spawning RHEL instance to OpenStack and adding webserver in a single swing with Ansible
